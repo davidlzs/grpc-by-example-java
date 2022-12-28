@@ -27,15 +27,16 @@ import java.util.Arrays;
  * Created by rayt on 5/16/16.
  */
 public class ErrorGrpcServer {
-  static public void main(String[] args) throws IOException, InterruptedException {
+  public static void main(String[] args) throws IOException, InterruptedException {
     UnknownStatusDescriptionInterceptor unknownStatusDescriptionInterceptor = new UnknownStatusDescriptionInterceptor(Arrays.asList(
         IllegalArgumentException.class
     ));
-    Server server = ServerBuilder.forPort(8080)
+    int port = 8080;
+    Server server = ServerBuilder.forPort(port)
         .addService(ServerInterceptors.intercept(new ErrorServiceImpl(), unknownStatusDescriptionInterceptor))
         .build();
 
-    System.out.println("Starting server...");
+    System.out.println(String.format("Starting server at %d ...", port));
     server.start();
     System.out.println("Server started!");
     server.awaitTermination();

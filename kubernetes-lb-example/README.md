@@ -3,6 +3,43 @@ gRPC Load Balancing Example in Kubernetes
 
 L4 Load Balancing
 -----------------
+Build docker images and load the docker images to [Kind](https://kind.sigs.k8s.io/) control panel
+
+```
+cd echo-server
+docker build -f ./Dockerfile -t dliu/echo-server .
+kind load docker-image dliu/echo-server
+```
+
+```
+cd echo-client-simple
+docker build -f ./Dockerfile -t dliu/echo-client-simple .
+kind load docker-image dliu/echo-client-simple
+```
+
+```
+cd echo-client-lb-api
+docker build -f ./Dockerfile -t dliu/echo-client-lb-api . && kind load docker-image dliu/echo-client-lb-api
+```
+
+
+To view docker images in Kind
+
+```
+docker exec -it kind-control-plane bash
+crictl images
+```
+
+Deploy with k8s-headless-service-lb
+
+```
+$ kubectl apply -f kubernetes/k8s-headless-service-lb/echo-server.yaml
+$ kubectl apply -f kubernetes/k8s-headless-service-lb/echo-client.yaml
+```
+
+[史上最细gRPC(Go)入门教程(十三)---Kubernetes 环境下的 gRPC 负载均衡](https://blog.csdn.net/java_1996/article/details/117635387)
+
+
 Kubernetes can provide L4 load balancing using a ClusterIP service.
 
 gRPC client can connect to the service IP (and with DNS name) directly.

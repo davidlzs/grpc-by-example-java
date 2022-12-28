@@ -30,8 +30,7 @@ spec:
   ports:
   - name: grpc
     port: 8080
-    protocol: TCP
     targetPort: 8080
   selector:
     run: echo-server
-  type: ClusterIP
+  sessionAffinity: None

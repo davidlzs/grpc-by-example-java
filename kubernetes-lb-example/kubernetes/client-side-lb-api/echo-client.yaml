@@ -1,3 +1,33 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  namespace: default
+  name: grpclb-sa
+---
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  namespace: default
+  name: grpclb-role
+rules:
+  - apiGroups: [""]
+    resources: ["endpoints"]
+    verbs: ["get", "watch"]
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: grpclb-rolebinding
+  namespace: default
+subjects:
+  - kind: ServiceAccount
+    name: grpclb-sa
+    namespace: default
+roleRef:
+  kind: Role
+  name: grpclb-role
+  apiGroup: rbac.authorization.k8s.io
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -16,7 +46,10 @@ spec:
     spec:
       containers:
       - name: echo-client
-        image: saturnism/echo-client-lb-api
+        image: dliu/echo-client-lb-api
+        imagePullPolicy: Never
         env:
         - name: ECHO_SERVICE_TARGET
           value: kubernetes:///default/echo-server/8080
+      serviceAccountName: grpclb-sa
+#      automountServiceAccountToken: false

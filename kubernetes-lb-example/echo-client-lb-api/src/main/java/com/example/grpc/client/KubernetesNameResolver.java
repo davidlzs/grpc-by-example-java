@@ -1,10 +1,7 @@
 package com.example.grpc.client;
 
 import io.fabric8.kubernetes.api.model.Endpoints;
-import io.fabric8.kubernetes.client.DefaultKubernetesClient;
-import io.fabric8.kubernetes.client.KubernetesClient;
-import io.fabric8.kubernetes.client.KubernetesClientException;
-import io.fabric8.kubernetes.client.Watcher;
+import io.fabric8.kubernetes.client.*;
 import io.grpc.Attributes;
 import io.grpc.EquivalentAddressGroup;
 import io.grpc.NameResolver;
@@ -16,7 +13,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -43,7 +39,7 @@ public class KubernetesNameResolver extends NameResolver {
     this.params = params;
     this.timerServiceResource = timerServiceResource;
     this.sharedChannelExecutorResource = sharedChannelExecutorResource;
-    this.kubernetesClient = new DefaultKubernetesClient();
+    this.kubernetesClient = new KubernetesClientBuilder().build();
   }
 
   @Override
@@ -130,7 +126,7 @@ public class KubernetesNameResolver extends NameResolver {
           }
 
           @Override
-          public void onClose(KubernetesClientException e) {
+          public void onClose(WatcherException e) {
             watching = false;
           }
         });

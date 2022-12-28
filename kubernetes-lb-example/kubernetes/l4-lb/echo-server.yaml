@@ -16,7 +16,8 @@ spec:
     spec:
       containers:
       - name: echo-server
-        image: saturnism/echo-server
+        image: dliu/echo-server
+        imagePullPolicy: Never
 ---
 apiVersion: v1
 kind: Service

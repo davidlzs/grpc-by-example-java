@@ -22,7 +22,6 @@ import com.example.grpc.EchoServiceGrpc;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.internal.DnsNameResolverProvider;
-import io.grpc.util.RoundRobinLoadBalancerFactory;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -49,8 +48,9 @@ public class ClientSideLoadBalancedEchoClient {
     }
     final ManagedChannel channel = ManagedChannelBuilder.forTarget(target)
         .nameResolverFactory(new DnsNameResolverProvider())  // this is on by default
-        .loadBalancerFactory(RoundRobinLoadBalancerFactory.getInstance())
-        .usePlaintext(true)
+            .defaultLoadBalancingPolicy("round_robin")
+//        .loadBalancerFactory(RoundRobinLoadBalancerFactory.getInstance())
+        .usePlaintext()
         .build();
 
     final String self = InetAddress.getLocalHost().getHostName();

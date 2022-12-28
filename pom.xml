@@ -37,11 +37,11 @@
         <module>simple-grpc-client</module>
         <module>streaming-example</module>
         <module>rxjava-example</module>
-        <module>chat-example</module>
+<!--        <module>chat-example</module>-->
         <module>metadata-context-example</module>
         <module>zipkin-prometheus-example</module>
-        <module>springboot-example</module>
-        <module>springboot-example-lognet</module>
+<!--        <module>springboot-example</module>-->
+<!--        <module>springboot-example-lognet</module>-->
         <module>jpa-example</module>
         <module>kubernetes-lb-example</module>
         <module>error-handling-example</module>

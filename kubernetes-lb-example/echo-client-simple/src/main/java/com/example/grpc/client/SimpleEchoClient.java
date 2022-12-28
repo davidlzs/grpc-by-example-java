@@ -21,12 +21,14 @@ import com.example.grpc.EchoResponse;
 import com.example.grpc.EchoServiceGrpc;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import io.grpc.NameResolver;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 /**
  * This is a simple client that depends on external load balancing, either via a proxy,
@@ -37,18 +39,26 @@ public class SimpleEchoClient {
   private static Random RANDOM = new Random();
 
   public static void main(String[] args) throws UnknownHostException {
-    String host = System.getenv("ECHO_SERVICE_HOST");
-    String port = System.getenv("ECHO_SERVICE_PORT");
-    final ManagedChannel channel = ManagedChannelBuilder.forTarget(host + ":" + port)
-		.usePlaintext()
-        .build();
+    String host = System.getenv().getOrDefault("ECHO_SERVICE_HOST", "localhost");
+    String port = System.getenv().getOrDefault("ECHO_SERVICE_PORT", "8080");
+    final ManagedChannel channel =
+//            ManagedChannelBuilder.forTarget(host + ":" + port)
+//		.usePlaintext()
+//        .build();
+
+      ManagedChannelBuilder.forTarget(host + ":" + port)
+              .defaultLoadBalancingPolicy("round_robin")
+//              .keepAliveTime(2, TimeUnit.SECONDS)
+//              .keepAliveTimeout(1, TimeUnit.SECONDS)
+              .usePlaintext()
+              .build();
 
     final String self = InetAddress.getLocalHost().getHostName();
 
     ExecutorService executorService = Executors.newFixedThreadPool(THREADS);
     for (int i = 0; i < THREADS; i++) {
       EchoServiceGrpc.EchoServiceBlockingStub stub = EchoServiceGrpc.newBlockingStub(channel);
-      executorService.submit(() -> {
+        executorService.submit(() -> {
         while (true) {
         	try {
               EchoResponse response = stub.echo(EchoRequest.newBuilder()

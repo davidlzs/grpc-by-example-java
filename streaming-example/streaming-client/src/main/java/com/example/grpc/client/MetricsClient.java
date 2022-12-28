@@ -22,37 +22,45 @@ import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.stub.StreamObserver;
 
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 /**
  * Created by rayt on 5/16/16.
  */
 public class MetricsClient {
-  public static void main(String[] args) throws InterruptedException {
-    ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 8080).usePlaintext().build();
-    MetricsServiceGrpc.MetricsServiceStub stub = MetricsServiceGrpc.newStub(channel);
+    public static void main(String[] args) throws InterruptedException {
+        ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 8080).usePlaintext().build();
+        MetricsServiceGrpc.MetricsServiceStub stub = MetricsServiceGrpc.newStub(channel);
 
-    StreamObserver<StreamingExample.Metric> collect = stub.collect(new StreamObserver<StreamingExample.Average>() {
-      @Override
-      public void onNext(StreamingExample.Average value) {
-        System.out.println("Average: " + value.getVal());
-      }
+        StreamObserver<StreamingExample.Metric> collect = stub.collect(new StreamObserver<StreamingExample.Average>() {
+            @Override
+            public void onNext(StreamingExample.Average value) {
+                System.out.println("Average: " + value.getVal());
+            }
 
-      @Override
-      public void onError(Throwable t) {
+            @Override
+            public void onError(Throwable t) {
 
-      }
+            }
 
-      @Override
-      public void onCompleted() {
+            @Override
+            public void onCompleted() {
 
-      }
-    });
+            }
+        });
 
-    Stream.of(1L, 2L, 3L, 4L).map(l -> StreamingExample.Metric.newBuilder().setMetric(l).build())
-        .forEach(collect::onNext);
-    collect.onCompleted();
+        Stream.of(1L, 2L, 3L, 4L).map(l -> {
+                  System.out.println("l is " + l);
+                            return StreamingExample.Metric.newBuilder().setMetric(l).build();
+                        }
+                )
+                .forEach(l -> {
+                  System.out.println("should call for l: " + l);
+                  collect.onNext(l);
+                });
+        collect.onCompleted();
 
-    //channel.shutdown().awaitTermination(5, TimeUnit.SECONDS);
-  }
+        channel.shutdown().awaitTermination(5, TimeUnit.SECONDS);
+    }
 }
