@@ -1,7 +1,10 @@
 package com.example.grpc.client;
 
 import io.fabric8.kubernetes.api.model.Endpoints;
-import io.fabric8.kubernetes.client.*;
+import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClientBuilder;
+import io.fabric8.kubernetes.client.Watcher;
+import io.fabric8.kubernetes.client.WatcherException;
 import io.grpc.Attributes;
 import io.grpc.EquivalentAddressGroup;
 import io.grpc.NameResolver;
@@ -23,7 +26,7 @@ public class KubernetesNameResolver extends NameResolver {
   private final String namespace;
   private final String name;
   private final int port;
-  private final Attributes params;
+  private final Args args;
   private final SharedResourceHolder.Resource<ScheduledExecutorService> timerServiceResource;
   private final SharedResourceHolder.Resource<Executor> sharedChannelExecutorResource;
   private final KubernetesClient kubernetesClient;
@@ -32,11 +35,11 @@ public class KubernetesNameResolver extends NameResolver {
   private volatile boolean refreshing = false;
   private volatile boolean watching = false;
 
-  public KubernetesNameResolver(String namespace, String name, int port, Attributes params, SharedResourceHolder.Resource<ScheduledExecutorService> timerServiceResource, SharedResourceHolder.Resource<Executor> sharedChannelExecutorResource) {
+  public KubernetesNameResolver(String namespace, String name, int port, NameResolver.Args args, SharedResourceHolder.Resource<ScheduledExecutorService> timerServiceResource, SharedResourceHolder.Resource<Executor> sharedChannelExecutorResource) {
     this.namespace = namespace;
     this.name = name;
     this.port = port;
-    this.params = params;
+    this.args = args;
     this.timerServiceResource = timerServiceResource;
     this.sharedChannelExecutorResource = sharedChannelExecutorResource;
     this.kubernetesClient = new KubernetesClientBuilder().build();

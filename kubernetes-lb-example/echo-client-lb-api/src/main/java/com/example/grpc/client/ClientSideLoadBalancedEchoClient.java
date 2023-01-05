@@ -21,6 +21,7 @@ import com.example.grpc.EchoResponse;
 import com.example.grpc.EchoServiceGrpc;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import io.grpc.NameResolverRegistry;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -45,8 +46,10 @@ public class ClientSideLoadBalancedEchoClient {
     if (target == null || target.isEmpty()) {
       target = "localhost:8080";
     }
+
+    NameResolverRegistry.getDefaultRegistry().register(new KubernetesNameResolverProvider());
     final ManagedChannel channel = ManagedChannelBuilder.forTarget(target)
-        .nameResolverFactory(new KubernetesNameResolverProvider())  // this is on by default
+//        .nameResolverFactory(new KubernetesNameResolverProvider())  // this is on by default
 //        .loadBalancerFactory(RoundRobinLoadBalancerFactory.getInstance())
             .defaultLoadBalancingPolicy("round_robin")
             .usePlaintext()

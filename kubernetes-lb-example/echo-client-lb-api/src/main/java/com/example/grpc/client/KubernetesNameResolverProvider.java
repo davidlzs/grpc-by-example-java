@@ -1,12 +1,10 @@
 package com.example.grpc.client;
 
 import com.google.common.base.Preconditions;
-import io.grpc.Attributes;
 import io.grpc.NameResolver;
 import io.grpc.NameResolverProvider;
 import io.grpc.internal.GrpcUtil;
 
-import javax.annotation.Nullable;
 import java.net.URI;
 
 /**
@@ -30,13 +28,13 @@ public class KubernetesNameResolverProvider extends NameResolverProvider {
     return 5;
   }
 
-  @Nullable
+
   @Override
-  public NameResolver newNameResolver(URI targetUri, Attributes params) {
+  public NameResolver newNameResolver(URI targetUri, NameResolver.Args args) {
     if (SCHEME.equals(targetUri.getScheme())) {
       String targetPath = Preconditions.checkNotNull(targetUri.getPath(), "targetPath");
       Preconditions.checkArgument(targetPath.startsWith("/"),
-          "the path component (%s) of the target (%s) must start with '/'", targetPath, targetUri);
+              "the path component (%s) of the target (%s) must start with '/'", targetPath, targetUri);
 
       String[] parts = targetPath.split("/");
       if (parts.length != 4) {
@@ -45,8 +43,8 @@ public class KubernetesNameResolverProvider extends NameResolverProvider {
 
       try {
         int port = Integer.valueOf(parts[3]);
-        return new KubernetesNameResolver(parts[1], parts[2], port, params, GrpcUtil.TIMER_SERVICE,
-            GrpcUtil.SHARED_CHANNEL_EXECUTOR);
+        return new KubernetesNameResolver(parts[1], parts[2], port, args, GrpcUtil.TIMER_SERVICE,
+                GrpcUtil.SHARED_CHANNEL_EXECUTOR);
       } catch (NumberFormatException e) {
         throw new IllegalArgumentException("Unable to parse port number", e);
       }
@@ -54,7 +52,6 @@ public class KubernetesNameResolverProvider extends NameResolverProvider {
       return null;
     }
   }
-
   @Override
   public String getDefaultScheme() {
     return SCHEME;
