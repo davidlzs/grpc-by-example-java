@@ -20,30 +20,49 @@ import com.example.grpc.GreetingServiceGrpc;
 import com.example.grpc.HelloRequest;
 import com.example.grpc.HelloResponse;
 import com.example.grpc.Sentiment;
+import io.grpc.Channel;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import io.grpc.StatusRuntimeException;
 
 /**
  * Created by rayt on 5/16/16.
  */
 public class MyGrpcClient {
+  private final Channel channel;
+
+  public MyGrpcClient(Channel channel) {
+    this.channel = channel;
+  }
+
   public static void main(String[] args) throws InterruptedException {
     ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 8080)
         .usePlaintext()
         .build();
 
+    MyGrpcClient client = new MyGrpcClient(channel);
+    client.greet("Ray", 18, Sentiment.HAPPY);
+
+    channel.shutdown();
+  }
+
+  public void greet(String name, int age, Sentiment mood) {
     GreetingServiceGrpc.GreetingServiceBlockingStub stub =
         GreetingServiceGrpc.newBlockingStub(channel);
 
-    HelloResponse helloResponse = stub.greeting(
-        HelloRequest.newBuilder()
-            .setName("Ray")
-            .setAge(18)
-            .setSentiment(Sentiment.HAPPY)
-            .build());
+    HelloRequest request = HelloRequest.newBuilder()
+            .setName(name)
+            .setAge(age)
+            .setSentiment(mood)
+            .build();
+    HelloResponse response;
+    try {
+      response = stub.greeting(request);
+    } catch (StatusRuntimeException e) {
+      System.err.println("RPC failed: " + e.getStatus());
+      return;
+    }
 
-    System.out.println(helloResponse);
-
-    channel.shutdown();
+    System.out.println(response);
   }
 }
