@@ -1,5 +1,8 @@
 package com.example.grpc;
 
+import com.example.grpc.EchoRequest;
+import com.example.grpc.EchoResponse;
+import com.example.grpc.EchoServiceGrpc;
 import com.example.grpc.server.EchoServiceImpl;
 import io.grpc.inprocess.InProcessChannelBuilder;
 import io.grpc.inprocess.InProcessServerBuilder;
