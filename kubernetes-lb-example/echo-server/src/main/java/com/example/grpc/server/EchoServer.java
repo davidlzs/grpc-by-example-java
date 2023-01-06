@@ -82,26 +82,3 @@ public class EchoServer {
   }
 }
 
-class EchoServiceImpl extends EchoServiceGrpc.EchoServiceImplBase {
-  private static Logger LOGGER = Logger.getLogger(EchoServiceImpl.class.getName());
-
-  public StreamObserverPool streamObserverPool = new StreamObserverPool();
-
-  @Override
-  public void echo(EchoRequest request, StreamObserver<EchoResponse> responseObserver) {
-
-    StreamObserver<EchoResponse> wrappedResponseStreamObserver = streamObserverPool.allocate(responseObserver);
-
-    try {
-      String from = InetAddress.getLocalHost().getHostAddress();
-      System.out.println("Received: " + request.getMessage());
-      wrappedResponseStreamObserver.onNext(EchoResponse.newBuilder()
-          .setFrom(from)
-          .setMessage(request.getMessage())
-          .build());
-      wrappedResponseStreamObserver.onCompleted();
-    } catch (UnknownHostException e) {
-      wrappedResponseStreamObserver.onError(e);
-    }
-  }
-}
